@@ -1,0 +1,17 @@
+.container {
+  display: grid;
+  grid-template-columns: minmax(0, 360px) 1fr;
+  gap: 2rem;
+}
+
+.panel {
+  background: rgba(33, 33, 33, 0.85);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}

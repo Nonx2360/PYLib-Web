@@ -1,0 +1,29 @@
+.container {
+  display: grid;
+  grid-template-columns: minmax(0, 420px) 1fr;
+  gap: 2rem;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.panel {
+  background: rgba(33, 33, 33, 0.85);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+@media (max-width: 1000px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}

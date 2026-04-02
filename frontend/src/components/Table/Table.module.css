@@ -1,0 +1,63 @@
+.tableWrapper {
+  overflow-x: auto;
+  background: rgba(33, 33, 33, 0.9);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th,
+td {
+  padding: 0.9rem 1rem;
+  text-align: left;
+}
+
+th {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+tr + tr td {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.statusBadge {
+  padding: 0.15rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.statusBorrowed {
+  background: rgba(31, 106, 165, 0.2);
+  color: #5bc0eb;
+}
+
+.statusOverdue {
+  background: rgba(214, 45, 32, 0.2);
+  color: #ff6b6b;
+}
+
+.statusReturned {
+  background: rgba(87, 204, 153, 0.2);
+  color: #a0ffa2;
+}
+
+@media (max-width: 640px) {
+  table {
+    min-width: unset;
+  }
+
+  th,
+  td {
+    padding: 0.7rem 0.5rem;
+  }
+}
