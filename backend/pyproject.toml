@@ -22,7 +22,8 @@ dependencies = [
     "qrcode[pil]>=7.4",
     "python-dateutil>=2.9",
     "loguru>=0.7",
-    "aiosqlite>=0.19"
+    "aiosqlite>=0.19",
+    "pyotp>=2.9"
 ]
 
 [build-system]

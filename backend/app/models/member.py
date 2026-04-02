@@ -15,3 +15,4 @@ class Member(Base):
     member_type = Column(String(30), nullable=False)
     joined_date = Column(Date, default=date.today, nullable=False)
     qr_code_path = Column(String(255), nullable=True)
+    totp_secret = Column(String(64), nullable=True)

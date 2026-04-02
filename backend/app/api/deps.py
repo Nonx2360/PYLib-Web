@@ -5,10 +5,12 @@ from sqlalchemy import select
 
 from app.core.security import decode_token
 from app.db.session import get_session
+from app.models.member import Member
 from app.models.user import User
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+student_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/student/login", scheme_name="StudentAuth")
 
 
 async def get_current_user(
@@ -28,3 +30,15 @@ async def get_admin_user(current_user: User = Depends(get_current_user)) -> User
     if current_user.role != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admins only")
     return current_user
+
+
+async def get_current_student(
+    token: str = Depends(student_oauth2_scheme), session: AsyncSession = Depends(get_session)
+) -> Member:
+    payload = decode_token(token)
+    if not payload or payload.get("type") != "student":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    member = await session.get(Member, payload.get("sub"))
+    if not member or member.member_type != "student":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Member not found")
+    return member

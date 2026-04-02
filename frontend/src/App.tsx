@@ -2,16 +2,20 @@ import { Navigate, Outlet, useRoutes } from "react-router-dom";
 
 import { AuthLayout } from "./layouts/AuthLayout";
 import { MainLayout } from "./layouts/MainLayout";
+import { StudentLayout } from "./layouts/StudentLayout";
 import { DashboardPage } from "./pages/Dashboard";
 import { InventoryPage } from "./pages/Inventory";
 import { LoanTerminalPage } from "./pages/LoanTerminal";
 import { MemberManagementPage } from "./pages/MemberManagement";
 import { LoginPage } from "./pages/Login";
+import { StudentLoginPage } from "./pages/StudentLogin";
+import { StudentDashboardPage } from "./pages/StudentDashboard";
 import { useAuthStore } from "./store/auth";
+import { useStudentAuthStore } from "./store/studentAuth";
 
 function ProtectedRoute() {
   const user = useAuthStore((state) => state.user);
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/staff/login" replace />;
   return <Outlet />;
 }
 
@@ -21,13 +25,38 @@ function AuthRoute() {
   return <Outlet />;
 }
 
+function StudentProtectedRoute() {
+  const profile = useStudentAuthStore((state) => state.profile);
+  if (!profile) return <Navigate to="/student/login" replace />;
+  return <Outlet />;
+}
+
+function StudentAuthRoute() {
+  const profile = useStudentAuthStore((state) => state.profile);
+  if (profile) return <Navigate to="/student" replace />;
+  return <Outlet />;
+}
+
 export default function App() {
   const element = useRoutes([
+    {
+      element: <StudentAuthRoute />,
+      children: [
+        {
+          path: "/login",
+          element: (
+            <AuthLayout>
+              <StudentLoginPage />
+            </AuthLayout>
+          ),
+        },
+      ],
+    },
     {
       element: <AuthRoute />,
       children: [
         {
-          path: "/login",
+          path: "/staff/login",
           element: (
             <AuthLayout>
               <LoginPage />
@@ -47,6 +76,19 @@ export default function App() {
             { path: "/inventory", element: <InventoryPage /> },
             { path: "/loan", element: <LoanTerminalPage /> },
           ],
+        },
+      ],
+    },
+    {
+      element: <StudentProtectedRoute />,
+      children: [
+        {
+          path: "/student",
+          element: (
+            <StudentLayout>
+              <StudentDashboardPage />
+            </StudentLayout>
+          ),
         },
       ],
     },

@@ -13,6 +13,7 @@ from app.models.user import User
 from app.schemas.member import MemberCreate, MemberRead, MemberUpdate
 from app.services.audit import record_log
 from app.services.qr import generate_qr_code
+from app.services.totp import generate_totp_secret
 from app.utils.crypto import compute_integrity, decrypt_value, encrypt_value
 from app.reports.member_card import generate_member_card
 
@@ -68,6 +69,7 @@ async def create_member(
         encrypted_national_id=encrypted,
         hmac_integrity=signature,
         qr_code_path=qr_path,
+        totp_secret=generate_totp_secret(),
     )
     session.add(member)
     await record_log(

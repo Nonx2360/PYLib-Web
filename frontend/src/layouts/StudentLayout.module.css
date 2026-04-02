@@ -1,0 +1,48 @@
+.wrapper {
+  min-height: 100vh;
+  padding: 3rem clamp(1.5rem, 5vw, 3.5rem);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.portalLabel {
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.header h1 {
+  margin: 0.35rem 0 0;
+}
+
+.meta {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+}
+
+.content {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .content {
+    padding: 1.5rem;
+  }
+}
