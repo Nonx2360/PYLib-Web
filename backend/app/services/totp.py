@@ -3,6 +3,9 @@ from __future__ import annotations
 import time
 
 import pyotp
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.member import Member
 
 
 TOTP_INTERVAL_SECONDS = 30
@@ -29,3 +32,14 @@ def verify_totp_code(secret: str, code: str) -> bool:
 
     totp = pyotp.TOTP(secret, interval=TOTP_INTERVAL_SECONDS)
     return bool(totp.verify(code, valid_window=1))
+
+
+async def ensure_member_totp_secret(session: AsyncSession, member: Member) -> Member:
+    """Guarantee that a member has an assigned TOTP secret."""
+
+    if not member.totp_secret:
+        member.totp_secret = generate_totp_secret()
+        session.add(member)
+        await session.commit()
+        await session.refresh(member)
+    return member

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notifyError, notifyInfo, notifySuccess } from "../../utils/alerts";
 
 import api from "../../api/client";
 import { Button } from "../../components/Button";
@@ -35,21 +35,21 @@ export function LoanTerminalPage() {
   const borrowMutation = useMutation({
     mutationFn: (values: BorrowValues) => api.post("/loans/borrow", values),
     onSuccess: async () => {
-      toast.success("Loan recorded");
+      notifySuccess("Loan recorded");
       borrowForm.reset();
       await queryClient.invalidateQueries({ queryKey: ["overdue"] });
     },
-    onError: (error: any) => toast.error(error?.response?.data?.detail ?? "Unable to borrow"),
+    onError: (error: any) => notifyError(error?.response?.data?.detail ?? "Unable to borrow"),
   });
 
   const returnMutation = useMutation({
     mutationFn: (values: ReturnValues) => api.post("/loans/return", values),
     onSuccess: async () => {
-      toast.success("Item returned");
+      notifySuccess("Item returned");
       returnForm.reset();
       await queryClient.invalidateQueries({ queryKey: ["overdue"] });
     },
-    onError: (error: any) => toast.error(error?.response?.data?.detail ?? "Unable to return"),
+    onError: (error: any) => notifyError(error?.response?.data?.detail ?? "Unable to return"),
   });
 
   const handleScan = (value: string) => {
@@ -67,7 +67,7 @@ export function LoanTerminalPage() {
         returnForm.setValue("book_id", value, { shouldValidate: true });
         break;
     }
-    toast.info(`Scanned ${value}`);
+    notifyInfo(`Scanned ${value}`);
   };
 
   return (

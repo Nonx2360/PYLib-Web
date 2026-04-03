@@ -1,4 +1,4 @@
-import { useEffect, useId } from "react";
+import { useEffect, useRef } from "react";
 
 import styles from "./QRScanner.module.css";
 
@@ -8,7 +8,8 @@ interface QRScannerProps {
 }
 
 export function QRScanner({ onScan, onError }: QRScannerProps) {
-  const elementId = useId();
+  const elementIdRef = useRef(`qr-scanner-${Math.random().toString(36).slice(2, 10)}`);
+  const elementId = elementIdRef.current;
 
   useEffect(() => {
     let isMounted = true;
@@ -20,7 +21,7 @@ export function QRScanner({ onScan, onError }: QRScannerProps) {
       scanner.render(
         (value: string) => {
           if (isMounted) onScan(value);
-          scanner?.clear?.();
+          scanner?.clear?.().catch(() => {});
         },
         (error: string) => onError?.(error)
       );
@@ -30,7 +31,7 @@ export function QRScanner({ onScan, onError }: QRScannerProps) {
 
     return () => {
       isMounted = false;
-      scanner?.clear?.();
+      scanner?.clear?.().catch(() => {});
     };
   }, [elementId, onScan, onError]);
 

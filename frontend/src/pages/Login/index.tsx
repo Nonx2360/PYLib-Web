@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { notifyError, notifySuccess } from "../../utils/alerts";
 
 import api from "../../api/client";
 import { Button } from "../../components/Button";
@@ -38,10 +38,10 @@ export function LoginPage() {
         accessToken: tokenResponse.data.access_token,
         refreshToken: tokenResponse.data.refresh_token,
       });
-      toast.success("Welcome back 👋");
+      notifySuccess("Welcome back 👋");
       navigate("/");
     } catch (error: any) {
-      toast.error(error?.response?.data?.detail ?? "Login failed");
+      notifyError(error?.response?.data?.detail ?? "Login failed");
     } finally {
       setLoading(false);
     }

@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
+import { notifyError, notifySuccess } from "../../utils/alerts";
 
 import api from "../../api/client";
 import { Button } from "../../components/Button";
@@ -41,11 +41,11 @@ export function InventoryPage() {
   const mutation = useMutation({
     mutationFn: (values: FormValues) => api.post("/books", values),
     onSuccess: async () => {
-      toast.success("Book added");
+      notifySuccess("Book added");
       form.reset();
       await queryClient.invalidateQueries({ queryKey: ["books"] });
     },
-    onError: (error: any) => toast.error(error?.response?.data?.detail ?? "Unable to add book"),
+    onError: (error: any) => notifyError(error?.response?.data?.detail ?? "Unable to add book"),
   });
 
   return (

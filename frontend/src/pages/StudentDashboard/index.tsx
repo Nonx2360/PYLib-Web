@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import QRCode from "react-qr-code";
-import { toast } from "sonner";
+import { notifyError } from "../../utils/alerts";
 
 import studentApi from "../../api/studentClient";
 import { Button } from "../../components/Button";
@@ -59,10 +59,10 @@ export function StudentDashboardPage() {
 
   useEffect(() => {
     if (totpQuery.error) {
-      toast.error("Unable to refresh passcode");
+      notifyError("Unable to refresh passcode");
     }
     if (loansQuery.error) {
-      toast.error("Unable to load borrowed books");
+      notifyError("Unable to load borrowed books");
     }
   }, [totpQuery.error, loansQuery.error]);
 

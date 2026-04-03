@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { notifyError, notifySuccess } from "../../utils/alerts";
 
 import studentApi from "../../api/studentClient";
 import { Button } from "../../components/Button";
@@ -31,10 +31,10 @@ export function StudentLoginPage() {
       setLoading(true);
       const response = await studentApi.post("/student/login", values);
       setSession({ profile: response.data.profile, token: response.data.access_token });
-      toast.success("Student session started");
+      notifySuccess("Student session started");
       navigate("/student");
     } catch (error: any) {
-      toast.error(error?.response?.data?.detail ?? "Unable to login");
+      notifyError(error?.response?.data?.detail ?? "Unable to login");
     } finally {
       setLoading(false);
     }

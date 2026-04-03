@@ -7,9 +7,10 @@ from sqlalchemy import Select, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api import deps
+from app.core.security import get_password_hash
 from app.db.session import get_session
 from app.models.member import Member
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.member import MemberCreate, MemberRead, MemberUpdate
 from app.services.audit import record_log
 from app.services.qr import generate_qr_code
@@ -62,6 +63,19 @@ async def create_member(
     encrypted = encrypt_value(payload.national_id)
     signature = compute_integrity({"member_id": payload.member_id, "national_id": payload.national_id})
     qr_path = generate_qr_code(payload.member_id, QR_DIR)
+    new_user: User | None = None
+    if payload.member_type == "staff":
+        if not payload.username or not payload.password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Staff credentials required")
+        existing_user = await session.execute(select(User).where(User.username == payload.username))
+        if existing_user.scalar_one_or_none():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already in use")
+        new_user = User(
+            username=payload.username,
+            password_hash=get_password_hash(payload.password),
+            role=UserRole.STAFF.value,
+        )
+        session.add(new_user)
     member = Member(
         member_id=payload.member_id,
         full_name=payload.full_name,
@@ -76,7 +90,7 @@ async def create_member(
         session,
         str(current_user.id),
         "MEMBER_CREATED",
-        {"member_id": member.member_id},
+        {"member_id": member.member_id, "member_type": member.member_type},
     )
     await session.commit()
     await session.refresh(member)

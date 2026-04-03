@@ -9,6 +9,7 @@ from app.api import deps
 from app.core.config import get_settings
 from app.core.security import create_student_token
 from app.db.session import get_session
+from app.models.checkin import CheckIn
 from app.models.loan import Loan, LoanStatus
 from app.models.member import Member
 from app.schemas.student import (
@@ -21,7 +22,7 @@ from app.schemas.student import (
     StudentSession,
     StudentTotpResponse,
 )
-from app.services.totp import generate_totp_secret, get_current_totp_code, verify_totp_code
+from app.services.totp import ensure_member_totp_secret, get_current_totp_code, verify_totp_code
 from app.utils.crypto import decrypt_value, verify_integrity
 
 
@@ -54,14 +55,6 @@ def _serialize_loan(loan: Loan) -> StudentLoanRead:
     )
 
 
-async def _ensure_member_secret(member: Member, session: AsyncSession) -> None:
-    if not member.totp_secret:
-        member.totp_secret = generate_totp_secret()
-        session.add(member)
-        await session.commit()
-        await session.refresh(member)
-
-
 @router.post("/login", response_model=StudentSession)
 async def student_login(
     payload: StudentLoginRequest,
@@ -75,7 +68,7 @@ async def student_login(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Member data corrupted")
     if decrypted_id != payload.national_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    await _ensure_member_secret(member, session)
+    await ensure_member_totp_secret(session, member)
     return StudentSession(
         access_token=create_student_token(member.member_id),
         expires_in=settings.student_access_token_expire_minutes * 60,
@@ -92,7 +85,7 @@ async def student_profile(member: Member = Depends(deps.get_current_student)) ->
 async def current_totp(
     member: Member = Depends(deps.get_current_student), session: AsyncSession = Depends(get_session)
 ) -> StudentTotpResponse:
-    await _ensure_member_secret(member, session)
+    await ensure_member_totp_secret(session, member)
     code, remaining = get_current_totp_code(member.totp_secret)
     return StudentTotpResponse(code=code, expires_in=remaining)
 
@@ -135,9 +128,12 @@ async def verify_checkin(
     member = await session.get(Member, payload.member_id)
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Member not found")
-    await _ensure_member_secret(member, session)
+    await ensure_member_totp_secret(session, member)
     if not verify_totp_code(member.totp_secret, payload.code):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid code")
+    entry = CheckIn(member_id=member.member_id, staff_id=None, method="door_scanner")
+    session.add(entry)
+    await session.commit()
     return CheckInResponse(
         member_id=member.member_id,
         full_name=member.full_name,

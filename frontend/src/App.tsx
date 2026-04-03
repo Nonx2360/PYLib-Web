@@ -4,6 +4,7 @@ import { AuthLayout } from "./layouts/AuthLayout";
 import { MainLayout } from "./layouts/MainLayout";
 import { StudentLayout } from "./layouts/StudentLayout";
 import { DashboardPage } from "./pages/Dashboard";
+import { CheckInTerminalPage } from "./pages/CheckInTerminal";
 import { InventoryPage } from "./pages/Inventory";
 import { LoanTerminalPage } from "./pages/LoanTerminal";
 import { MemberManagementPage } from "./pages/MemberManagement";
@@ -27,7 +28,7 @@ function AuthRoute() {
 
 function StudentProtectedRoute() {
   const profile = useStudentAuthStore((state) => state.profile);
-  if (!profile) return <Navigate to="/student/login" replace />;
+  if (!profile) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
@@ -75,6 +76,7 @@ export default function App() {
             { path: "/members", element: <MemberManagementPage /> },
             { path: "/inventory", element: <InventoryPage /> },
             { path: "/loan", element: <LoanTerminalPage /> },
+            { path: "/checkin", element: <CheckInTerminalPage /> },
           ],
         },
       ],
@@ -92,7 +94,7 @@ export default function App() {
         },
       ],
     },
-    { path: "*", element: <Navigate to="/" replace /> },
+    { path: "*", element: <Navigate to="/login" replace /> },
   ]);
 
   return element;
